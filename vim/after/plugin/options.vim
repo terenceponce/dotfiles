@@ -1,3 +1,10 @@
+" Enable 256-color by default in the terminal
+if !has('gui_running') | set t_Co=256 | endif
+
+syntax enable
+set background=light
+colorscheme solarized
+
 " Start fzf in a pop-up centered window
 let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.6 } }
 
