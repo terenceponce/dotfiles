@@ -27,3 +27,8 @@ nvim
 ```
 :PlugInstall
 ```
+
+## List of Vim plugins used
+
+- [FZF.vim](https://github.com/junegunn/fzf.vim) - File/Text Search
+- [NERDTree](https://github.com/preservim/nerdtree) - Directory Explorer
