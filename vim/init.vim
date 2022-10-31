@@ -9,5 +9,7 @@ Plug 'rstacruz/vim-opinion'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 Plug 'preservim/nerdtree'
+Plug 'altercation/vim-colors-solarized'
+Plug 'vim-ruby/vim-ruby'
 
 call plug#end()
