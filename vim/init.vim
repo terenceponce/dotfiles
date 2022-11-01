@@ -16,5 +16,9 @@ Plug 'airblade/vim-gitgutter'
 Plug 'christoomey/vim-tmux-navigator'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
+Plug 'chaoren/vim-wordmotion'
+Plug 'tpope/vim-surround'
+Plug 'tpope/vim-endwise'
+Plug 'rstacruz/vim-closer'
 
 call plug#end()
