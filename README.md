@@ -34,3 +34,16 @@ fi
 
 export BAT_THEME="Solarized (light)"
 ```
+
+5. Reload ZSH
+
+```
+source ~/.zshrc
+```
+## tmux
+
+Go to the `tmux` subdirectory and [follow the instructions from there](tmux/README.md)
+
+## Vim
+
+Go to the `vim` subdirectory and [follow the instructions from there](vim/README.md)
