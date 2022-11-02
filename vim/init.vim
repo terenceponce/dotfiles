@@ -20,5 +20,6 @@ Plug 'chaoren/vim-wordmotion'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-endwise'
 Plug 'rstacruz/vim-closer'
+Plug 'tpope/vim-rails'
 
 call plug#end()
