@@ -21,5 +21,8 @@ Plug 'tpope/vim-surround'
 Plug 'tpope/vim-endwise'
 Plug 'rstacruz/vim-closer'
 Plug 'tpope/vim-rails'
+Plug 'neoclide/coc.nvim', { 'tag': 'v0.0.82' }
 
 call plug#end()
+
+let g:coc_global_extensions = ['coc-solargraph', 'coc-json']
