@@ -22,6 +22,7 @@ Plug 'tpope/vim-endwise'
 Plug 'rstacruz/vim-closer'
 Plug 'tpope/vim-rails'
 Plug 'neoclide/coc.nvim', { 'tag': 'v0.0.82' }
+Plug 'nathanaelkane/vim-indent-guides'
 
 call plug#end()
 
