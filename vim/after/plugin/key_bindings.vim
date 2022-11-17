@@ -5,6 +5,6 @@ nnoremap <C-p> :Files<cr>
 nnoremap <silent> <Leader>f :Rg<CR>
 
 " NERDTree Bindings
-nnoremap <leader>n :NERDTreeFocus<CR>
-nnoremap <C-n> :NERDTreeToggle<CR>
-nnoremap <C-f> :NERDTreeFind<CR>
+nnoremap <leader>n :NERDTreeFocus<CR> <bar> <C-w>=
+nnoremap <C-n> :NERDTreeToggle<CR> <bar> <C-w>=
+nnoremap <C-f> :NERDTreeFind<CR> <bar> <C-w>=
