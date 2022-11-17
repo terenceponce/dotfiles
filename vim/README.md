@@ -16,13 +16,19 @@ brew install neovim
 make link
 ```
 
-3. Open Neovim
+3. Create Undo history directory
+
+```
+mkdir ~/.vim/undo
+```
+
+4. Open Neovim
 
 ```
 nvim
 ```
 
-4. Install Vim Plugins
+5. Install Vim Plugins
 
 ```
 :PlugInstall

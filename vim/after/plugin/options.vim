@@ -26,6 +26,9 @@ let g:NERDTreeMinimalMenu=1
 " Change vim-airline theme to Solarized Light
 let g:airline_theme='solarized'
 
+set undofile
+set undodir=~/.vim/undo/
+
 " Change color of vim-gitgutter column
 " Always keep this line at the end of the file
 highlight clear SignColumn
