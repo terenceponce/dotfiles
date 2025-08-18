@@ -1,5 +1,5 @@
 # Dotfiles Makefile
-.PHONY: all git tmux prompt clean clean-git clean-tmux clean-prompt
+.PHONY: all git tmux prompt neovim clean clean-git clean-tmux clean-prompt clean-neovim
 
 # Package manager detection and installation function
 # Usage: $(call install_package,package_name)
@@ -32,10 +32,10 @@ define install_package
 endef
 
 # Default target - runs all configuration
-all: git tmux prompt
+all: git tmux prompt neovim
 
 # Clean all symlinks
-clean: clean-git clean-tmux clean-prompt
+clean: clean-git clean-tmux clean-prompt clean-neovim
 
 # Git configuration symlinks
 git:
@@ -101,6 +101,21 @@ prompt:
 	fi
 	@echo "Oh-My-Posh setup complete. Restart your shell or source ~/.bashrc to see the new prompt."
 
+# Neovim configuration symlinks
+neovim:
+	@echo "Setting up neovim configuration..."
+	$(call install_package,neovim)
+	@# Create ~/.config directory if it doesn't exist
+	@mkdir -p ~/.config
+	@# Symlink neovim config
+	@if [ -L ~/.config/nvim ] && [ "$$(readlink ~/.config/nvim)" = "$(PWD)/neovim" ]; then \
+		echo "  ~/.config/nvim already linked correctly"; \
+	else \
+		ln -sfn $(PWD)/neovim ~/.config/nvim; \
+		echo "  Linked ~/.config/nvim -> $(PWD)/neovim"; \
+	fi
+	@echo "Neovim configuration complete."
+
 # Remove git symlinks
 clean-git:
 	@echo "Removing git configuration symlinks..."
@@ -152,3 +167,14 @@ clean-prompt:
 		echo "  Oh-My-Posh binary not found"; \
 	fi
 	@echo "Oh-My-Posh cleanup complete."
+
+# Remove neovim symlinks
+clean-neovim:
+	@echo "Removing neovim configuration symlinks..."
+	@if [ -L ~/.config/nvim ] && [ "$$(readlink ~/.config/nvim)" = "$(PWD)/neovim" ]; then \
+		rm -f ~/.config/nvim; \
+		echo "  Removed ~/.config/nvim symlink"; \
+	else \
+		echo "  ~/.config/nvim not linked to this repository"; \
+	fi
+	@echo "Neovim configuration cleanup complete."
