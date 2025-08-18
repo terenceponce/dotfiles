@@ -75,9 +75,23 @@ tmux:
 	fi
 	@echo "Tmux setup complete. Enter tmux and press <prefix> + I to install plugins."
 
-# Oh-My-Posh prompt setup
+# Prompt setup with ble.sh and Oh-My-Posh
 prompt:
-	@echo "Setting up Oh-My-Posh prompt..."
+	@echo "Setting up prompt with ble.sh and Oh-My-Posh..."
+	@# Install dependencies for ble.sh
+	$(call install_package,git)
+	$(call install_package,make)
+	$(call install_package,gawk)
+	@# Install ble.sh
+	@if [ ! -f ~/.local/share/blesh/ble.sh ]; then \
+		echo "  Installing ble.sh..."; \
+		git clone --recursive --depth 1 --shallow-submodules https://github.com/akinomyoga/ble.sh.git /tmp/ble.sh; \
+		make -C /tmp/ble.sh install PREFIX=$$HOME/.local; \
+		rm -rf /tmp/ble.sh; \
+		echo "  ble.sh installed successfully"; \
+	else \
+		echo "  ble.sh already installed"; \
+	fi
 	@# Install Oh-My-Posh (includes themes automatically)
 	@if ! command -v oh-my-posh > /dev/null 2>&1; then \
 		echo "  Installing Oh-My-Posh..."; \
@@ -86,20 +100,36 @@ prompt:
 	else \
 		echo "  Oh-My-Posh already installed"; \
 	fi
-	@# Add Oh-My-Posh initialization to ~/.bashrc
+	@# Configure ~/.bashrc with proper ordering
 	@if [ ! -f ~/.bashrc ]; then \
 		touch ~/.bashrc; \
 		echo "  Created ~/.bashrc"; \
 	fi
-	@if ! grep -q "oh-my-posh init" ~/.bashrc; then \
-		echo "" >> ~/.bashrc; \
-		echo "# Oh-My-Posh initialization" >> ~/.bashrc; \
-		echo "eval \"\$$(oh-my-posh init bash --config 'https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/dracula.omp.json')\"" >> ~/.bashrc; \
-		echo "  Added Oh-My-Posh initialization with dracula theme to ~/.bashrc"; \
-	else \
-		echo "  Oh-My-Posh initialization already exists in ~/.bashrc"; \
+	@# Remove existing prompt configurations to rebuild in correct order
+	@if grep -q "ble.sh\|oh-my-posh init\|set -o vi\|ble-bind" ~/.bashrc; then \
+		grep -v "source.*blesh/ble.sh\|oh-my-posh init\|set -o vi\|ble-bind\|BLE_VERSION.*ble-attach" ~/.bashrc > ~/.bashrc.tmp && mv ~/.bashrc.tmp ~/.bashrc; \
+		sed -i '/^# ble\.sh configuration$$/d; /^# Oh-My-Posh initialization$$/d; /^# Enable vim mode$$/d; /^# ble\.sh customizations$$/d' ~/.bashrc; \
+		echo "  Removed existing prompt configurations for rebuild"; \
 	fi
-	@echo "Oh-My-Posh setup complete. Restart your shell or source ~/.bashrc to see the new prompt."
+	@# Add ble.sh configuration first
+	@echo "" >> ~/.bashrc
+	@echo "# ble.sh configuration" >> ~/.bashrc
+	@echo "source -- ~/.local/share/blesh/ble.sh" >> ~/.bashrc
+	@echo "" >> ~/.bashrc
+	@echo "# Enable vim mode" >> ~/.bashrc
+	@echo "set -o vi" >> ~/.bashrc
+	@echo "" >> ~/.bashrc
+	@echo "# ble.sh customizations" >> ~/.bashrc
+	@echo "ble-bind -f 'C-y' 'accept-line'" >> ~/.bashrc
+	@echo "ble-bind -f 'C-j' ''" >> ~/.bashrc
+	@echo "" >> ~/.bashrc
+	@# Add Oh-My-Posh initialization last
+	@echo "# Oh-My-Posh initialization (must be last)" >> ~/.bashrc
+	@echo "eval \"\$$(oh-my-posh init bash --config 'https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/dracula.omp.json')\"" >> ~/.bashrc
+	@echo "" >> ~/.bashrc
+	@echo "[[ \$${BLE_VERSION-} ]] && ble-attach" >> ~/.bashrc
+	@echo "  Added ble.sh and Oh-My-Posh configuration to ~/.bashrc"
+	@echo "Prompt setup complete. Restart your shell to use ble.sh with vim mode and Oh-My-Posh."
 
 # Neovim configuration symlinks
 neovim:
@@ -144,19 +174,27 @@ clean-tmux:
 	fi
 	@echo "Tmux configuration cleanup complete."
 
-# Remove Oh-My-Posh configuration
+# Remove prompt configuration (ble.sh and Oh-My-Posh)
 clean-prompt:
-	@echo "Removing Oh-My-Posh configuration..."
-	@# Remove Oh-My-Posh initialization from ~/.bashrc
+	@echo "Removing prompt configuration..."
+	@# Remove ble.sh and Oh-My-Posh configuration from ~/.bashrc
 	@if [ -f ~/.bashrc ]; then \
-		if grep -q "oh-my-posh init" ~/.bashrc; then \
-			grep -v "oh-my-posh init" ~/.bashrc > ~/.bashrc.tmp && mv ~/.bashrc.tmp ~/.bashrc; \
-			echo "  Removed Oh-My-Posh initialization from ~/.bashrc"; \
+		if grep -q "ble.sh\|oh-my-posh init\|set -o vi\|ble-bind" ~/.bashrc; then \
+			grep -v "source.*blesh/ble.sh\|oh-my-posh init\|set -o vi\|ble-bind\|BLE_VERSION.*ble-attach" ~/.bashrc > ~/.bashrc.tmp && mv ~/.bashrc.tmp ~/.bashrc; \
+			sed -i '/^# ble\.sh configuration$$/d; /^# Oh-My-Posh initialization.*$$/d; /^# Enable vim mode$$/d; /^# ble\.sh customizations$$/d' ~/.bashrc; \
+			echo "  Removed prompt configuration from ~/.bashrc"; \
 		else \
-			echo "  No Oh-My-Posh initialization found in ~/.bashrc"; \
+			echo "  No prompt configuration found in ~/.bashrc"; \
 		fi; \
 	else \
 		echo "  ~/.bashrc not found"; \
+	fi
+	@# Remove ble.sh installation
+	@if [ -f ~/.local/share/blesh/ble.sh ]; then \
+		rm -rf ~/.local/share/blesh; \
+		echo "  Removed ble.sh installation"; \
+	else \
+		echo "  ble.sh not installed"; \
 	fi
 	@# Remove Oh-My-Posh binary
 	@if command -v oh-my-posh > /dev/null 2>&1; then \
@@ -166,7 +204,7 @@ clean-prompt:
 	else \
 		echo "  Oh-My-Posh binary not found"; \
 	fi
-	@echo "Oh-My-Posh cleanup complete."
+	@echo "Prompt cleanup complete."
 
 # Remove neovim symlinks
 clean-neovim:
