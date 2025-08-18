@@ -1,5 +1,5 @@
 # Dotfiles Makefile
-.PHONY: all git tmux clean clean-git clean-tmux
+.PHONY: all git tmux prompt clean clean-git clean-tmux clean-prompt
 
 # Package manager detection and installation function
 # Usage: $(call install_package,package_name)
@@ -32,10 +32,10 @@ define install_package
 endef
 
 # Default target - runs all configuration
-all: git tmux
+all: git tmux prompt
 
 # Clean all symlinks
-clean: clean-git clean-tmux
+clean: clean-git clean-tmux clean-prompt
 
 # Git configuration symlinks
 git:
@@ -75,6 +75,32 @@ tmux:
 	fi
 	@echo "Tmux setup complete. Enter tmux and press <prefix> + I to install plugins."
 
+# Oh-My-Posh prompt setup
+prompt:
+	@echo "Setting up Oh-My-Posh prompt..."
+	@# Install Oh-My-Posh (includes themes automatically)
+	@if ! command -v oh-my-posh > /dev/null 2>&1; then \
+		echo "  Installing Oh-My-Posh..."; \
+		curl -s https://ohmyposh.dev/install.sh | bash -s; \
+		echo "  Oh-My-Posh installed successfully"; \
+	else \
+		echo "  Oh-My-Posh already installed"; \
+	fi
+	@# Add Oh-My-Posh initialization to ~/.bashrc
+	@if [ ! -f ~/.bashrc ]; then \
+		touch ~/.bashrc; \
+		echo "  Created ~/.bashrc"; \
+	fi
+	@if ! grep -q "oh-my-posh init" ~/.bashrc; then \
+		echo "" >> ~/.bashrc; \
+		echo "# Oh-My-Posh initialization" >> ~/.bashrc; \
+		echo "eval \"\$$(oh-my-posh init bash --config 'https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/dracula.omp.json')\"" >> ~/.bashrc; \
+		echo "  Added Oh-My-Posh initialization with dracula theme to ~/.bashrc"; \
+	else \
+		echo "  Oh-My-Posh initialization already exists in ~/.bashrc"; \
+	fi
+	@echo "Oh-My-Posh setup complete. Restart your shell or source ~/.bashrc to see the new prompt."
+
 # Remove git symlinks
 clean-git:
 	@echo "Removing git configuration symlinks..."
@@ -102,3 +128,27 @@ clean-tmux:
 		echo "  ~/.tmux.conf not linked to this repository"; \
 	fi
 	@echo "Tmux configuration cleanup complete."
+
+# Remove Oh-My-Posh configuration
+clean-prompt:
+	@echo "Removing Oh-My-Posh configuration..."
+	@# Remove Oh-My-Posh initialization from ~/.bashrc
+	@if [ -f ~/.bashrc ]; then \
+		if grep -q "oh-my-posh init" ~/.bashrc; then \
+			grep -v "oh-my-posh init" ~/.bashrc > ~/.bashrc.tmp && mv ~/.bashrc.tmp ~/.bashrc; \
+			echo "  Removed Oh-My-Posh initialization from ~/.bashrc"; \
+		else \
+			echo "  No Oh-My-Posh initialization found in ~/.bashrc"; \
+		fi; \
+	else \
+		echo "  ~/.bashrc not found"; \
+	fi
+	@# Remove Oh-My-Posh binary
+	@if command -v oh-my-posh > /dev/null 2>&1; then \
+		posh_path=$$(command -v oh-my-posh); \
+		rm -f "$$posh_path"; \
+		echo "  Removed Oh-My-Posh binary: $$posh_path"; \
+	else \
+		echo "  Oh-My-Posh binary not found"; \
+	fi
+	@echo "Oh-My-Posh cleanup complete."
